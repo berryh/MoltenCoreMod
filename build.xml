@@ -1,0 +1,43 @@
+<project name="MoltenCoreMod" default="main">
+
+	<property name="source" value="./src/minecraft/berryh"/>
+	<property name="build" value="./build"/>
+	<property name="classes" value="${build}/classes"/>
+	<property name="mcp" value="./"/>
+	<property name="jar" value="${build}/jar"/>
+	<target name="main">
+		<exec dir="${mcp}" executable="cmd" osfamily="windows">
+			<arg line="/c recompile.bat"/>
+		</exec>
+		
+		<exec dir="${mcp}" executable="cmd" osfamily="windows">
+			<arg line="/c reobfuscate.bat"/>
+		</exec>
+		
+		<delete dir="${build}" failonerror="false"/>
+		<mkdir dir="${build}"/>
+		
+		
+		<!-- copy the classes -->
+		<copy todir="${classes}">
+			<fileset dir="${mcp}/reobf/minecraft">
+				<exclude name="buildcraft/**"/>
+			</fileset>
+		</copy>
+		
+		<!-- copy the texures -->
+		<mkdir dir="${classes}/berryh/moltencore/client/gfx"/>
+		<copy todir="${classes}/berryh/moltencore/client/gfx">
+			<fileset dir="${mcp}/src/minecraft/berryh/moltencore/client/gfx"/>
+		</copy>
+		
+		<delete dir="${jar}" failonerror="false"/>
+		<mkdir dir="${jar}"/>
+		<jar destfile="${jar}/MoltenCoreMod.jar" basedir="${classes}"/>
+	
+	
+	
+	</target>
+
+
+</project>
