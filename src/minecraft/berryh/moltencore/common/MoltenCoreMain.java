@@ -50,6 +50,14 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
 
 
+/*
+ * 
+ * Molten Core Mod
+ * By berryh
+ * 
+ *
+ */
+
 @Mod(modid = "MoltenCoreMod", name = "Molten Core Mod", version = "1.0.0")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false)
 
