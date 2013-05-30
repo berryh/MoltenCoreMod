@@ -63,7 +63,7 @@ import cpw.mods.fml.relauncher.Side;
  * 
  * Molten Core Mod
  * By berryh
- * Master Branch
+ * Development Branch
  * 
  *
  */
