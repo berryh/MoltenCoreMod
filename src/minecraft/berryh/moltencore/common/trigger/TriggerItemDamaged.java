@@ -36,8 +36,9 @@ public class TriggerItemDamaged extends TriggerMCM {
 		switch (state) {
 		case DAMAGED:
 			return "Item Damaged";
+		default:
+			return "Item Repaired";
 		}
-		return "Item Repaired";
 	}
 
 	@Override
