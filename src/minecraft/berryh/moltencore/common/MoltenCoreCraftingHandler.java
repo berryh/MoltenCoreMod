@@ -43,17 +43,6 @@ public class MoltenCoreCraftingHandler implements ICraftingHandler {
 			}
 		}
 		
-		if (item.itemID == MoltenCoreMain.moltencoreMultiTool.itemID){
-			for (int i=0; i< craftMatrix.getSizeInventory(); i++){
-				if (craftMatrix.getStackInSlot(i) != null){
-					ItemStack j = craftMatrix.getStackInSlot(i);
-					if(j.getItem() != null && j.getItem() == Item.diamond){
-						MoltenCoreNBTHelper.setInteger(item, "HL", 3);
-						MoltenCoreNBTHelper.setString(item, "Name", "Molten Core MultiTool+");
-					}
-				}
-			}			
-		}
 	}
 
 	@Override

@@ -8,6 +8,13 @@ import ic2.api.Ic2Recipes;
 import ic2.api.Items;
 import java.util.logging.Logger;
 
+import berryh.moltencore.common.trigger.TriggerItemDamaged;
+import berryh.moltencore.common.trigger.TriggerMCM;
+import berryh.moltencore.common.trigger.TriggerProviderMCM;
+import buildcraft.BuildCraftCore;
+import buildcraft.api.gates.ActionManager;
+import buildcraft.api.gates.Trigger;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.enchantment.Enchantment;
@@ -15,6 +22,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.EnumToolMaterial;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.FurnaceRecipes;
@@ -45,6 +53,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -61,6 +70,7 @@ import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = "MoltenCoreMod", name = "Molten Core Mod", version = "1.0.0")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false)
+
 
 
 public class MoltenCoreMain {
@@ -82,14 +92,18 @@ public class MoltenCoreMain {
 	public static Item moltencoreAxe;
 	public static Item kerogenBucket;
 	public static Item kerogen;
+	public static Item moltenCorePlate;
 	
 	//public static Item moltencoreSapler;
-	public static Item moltencoreMultiTool;
+	//public static Item moltencoreMultiTool;
+	public static Item moltenCoreCoolingCell;
 	
 	public static Block sodiumNitrateOre;
 	public static Block sugarySodiumNitrateBlock;
 	public static Block sugarBeetBlock;
 	public static Block burnedSugarySodiumNitrateBlock;
+	public static Block moltenCoreRepairer;
+	public static Block ultraCobbleGen;
 
 	public static int moltencorePickaxeID;
 	public static int moltencoreShovelID;
@@ -112,10 +126,14 @@ public class MoltenCoreMain {
 	public static int moltencoreAxeID;
 	public static int kerogenID;
 	public static int kerogenBucketID;
+	public static int moltenCoreRepairerID;
+	public static int ultraCobbleGenID;
+	public static int moltenCorePlateID;
 	
 	//public static int moltencoreSaplerID;
-	public static int moltencoreMultiToolID;
-	
+	//public static int moltencoreMultiToolID;
+	public static int moltenCoreCoolingCellID;
+		
 	public static boolean ic2 = false;
 	public static boolean forestry = false;
 	public static boolean buildcraft = false;
@@ -125,6 +143,10 @@ public class MoltenCoreMain {
 	public static Logger logger;
 	
 	public static LiquidStack kerogenLiquid;
+	
+	public static TriggerMCM triggerItemDamaged = new TriggerItemDamaged(951, TriggerItemDamaged.State.DAMAGED);
+	public static TriggerMCM triggerItemRepaired = new TriggerItemDamaged(952, TriggerItemDamaged.State.REPAIRED);
+
 	
 	
 	
@@ -177,12 +199,15 @@ public class MoltenCoreMain {
 		kerogenID = config.getItem(Configuration.CATEGORY_ITEM, "Kerogen", 22015).getInt();
 		kerogenBucketID = config.getItem(Configuration.CATEGORY_ITEM, "KerogenBucket", 22016).getInt();
 		//moltencoreSaplerID = config.getItem(Configuration.CATEGORY_ITEM, "MoltenCoreSapler",22015).getInt();
-		moltencoreMultiToolID = config.getItem(Configuration.CATEGORY_ITEM, "MoltenCoreMultiTool", 22017).getInt();
+		moltenCoreCoolingCellID = config.getItem(Configuration.CATEGORY_ITEM, "MoltenCoreCoolingCell",22017).getInt();
+		moltenCorePlateID = config.getItem(Configuration.CATEGORY_ITEM, "MoltenCorePlate", 22018).getInt();
 		
 		sodiumNitrateOreID = config.getBlock(Configuration.CATEGORY_BLOCK,"SodiumNitrateOre",1000).getInt();
 		sugarySodiumNitrateBlockID = config.getBlock(Configuration.CATEGORY_BLOCK,"SugarySodiumNitrateBlock",1001).getInt();
 		sugarBeetBlockID = config.getBlock(Configuration.CATEGORY_BLOCK,"SugarBeet",1002).getInt();
 		burnedSugarySodiumNitrateBlockID = config.getBlock(Configuration.CATEGORY_BLOCK, "BurnedSugarySodiumNitrateBlock",1003).getInt();
+		moltenCoreRepairerID = config.getBlock(Configuration.CATEGORY_BLOCK, "MoltenCoreRepairer", 1004).getInt();
+		ultraCobbleGenID = config.getBlock(Configuration.CATEGORY_BLOCK, "UltraCobbleGen", 1005).getInt();
 		//Property forestryconfig = config.get("AdditionalRecipes", "ForestryRecipes", false);
 		//Property ic2config = config.get("AdditionalRecipes", "IC2Recipes", false);
 		
@@ -213,7 +238,8 @@ public class MoltenCoreMain {
 		kerogen = (new Itemkerogen(kerogenID)).setIconIndex(18).setItemName("kerogen");
 		kerogenBucket = (new ItemkerogenBucket(kerogenBucketID)).setIconIndex(19).setItemName("kerogenBucket");
 		//moltencoreSapler = (new ItemMoltenCoreSapler(moltencoreSaplerID)).setIconIndex(18).setItemName("moltencoreSapler");
-		moltencoreMultiTool = (new ToolMoltenCoreMultiTool(moltencoreMultiToolID, ADJ)).setIconIndex(20).setFull3D();
+		moltenCoreCoolingCell = (new ItemMoltenCoreCoolingCell(moltenCoreCoolingCellID, 10000000)).setIconIndex(20).setItemName("moltenCoreCoolingCell");
+		moltenCorePlate = (new ItemMoltenCorePlate(moltenCorePlateID)).setIconIndex(21).setItemName("moltenCorePlate");
 		
 		//Create The Blocks
 		sugarBeetBlock = new BlocksugarBeetBlock(sugarBeetBlockID,3).setStepSound(Block.soundGrassFootstep).setHardness(0.0F).setBlockName("sugarBeetBlock");
@@ -221,7 +247,8 @@ public class MoltenCoreMain {
 		burnedSugarySodiumNitrateBlock = new BlockburnedSugarySodiumNitrateBlock(burnedSugarySodiumNitrateBlockID,5).setBlockName("burnedSugarySodiumNitrateBlock").setHardness(2F).setResistance(2F);
 		sodiumNitrateOre = new BlocksodiumNitrate(sodiumNitrateOreID,1).setHardness(3F).setResistance(5F).setStepSound(Block.soundStoneFootstep).setBlockName("sodiumNitrateOre");
 		sugarySodiumNitrateBlock = new BlocksugarySodiumNitrateBlock(sugarySodiumNitrateBlockID,2).setHardness(1.5F).setResistance(20F).setStepSound(Block.soundStoneFootstep).setBlockName("sugarySodiumNitrateBlock");
-		
+		moltenCoreRepairer = new BlockmoltenCoreRepairer(moltenCoreRepairerID,6).setHardness(1.5F).setResistance(20F).setBlockName("moltenCoreRepairer");
+		ultraCobbleGen = new BlockultraCobbleGen(ultraCobbleGenID,7).setHardness(2F).setResistance(20F).setBlockName("ultraCobbleGen");
 		
 		
 		//Register The Blocks
@@ -230,8 +257,15 @@ public class MoltenCoreMain {
 		GameRegistry.registerBlock(sugarBeetBlock);
 		GameRegistry.registerBlock(burnedSugarySodiumNitrateBlock);
 		
+		GameRegistry.registerBlock(moltenCoreRepairer, ItemBlock.class, "moltenCoreRepairer");
+		GameRegistry.registerBlock(ultraCobbleGen, ItemBlock.class, "ultraCobbleGen");
+		
 		//Register Tile Entities
-
+		GameRegistry.registerTileEntity(TileEntityMoltenCoreRepairer.class, "containermoltencorerepairer");
+		
+		//Networking
+		NetworkRegistry.instance().registerGuiHandler(this, new MoltenCoreGuiHandler());
+		
 		
 		//Register The Names
 		LanguageRegistry.addName(moltencorePickaxe, "Molten Core Pickaxe");
@@ -254,9 +288,12 @@ public class MoltenCoreMain {
 		LanguageRegistry.addName(moltencoreHoe, "Molten Core Hoe");
 		LanguageRegistry.addName(moltencoreSword, "Molten Core Sword");
 		//LanguageRegistry.addName(moltencoreSapler, "Molten Core Sapler");
-		LanguageRegistry.addName(moltencoreMultiTool, "Molten Core MultiTool");
 		LanguageRegistry.addName(kerogen, "Kerogen");
 		LanguageRegistry.addName(kerogenBucket, "Bucket of Kerogen");
+		LanguageRegistry.addName(moltenCoreRepairer, "Molten Core Repairer");
+		LanguageRegistry.addName(ultraCobbleGen, "Ultra Cobble Gen");
+		LanguageRegistry.addName(moltenCoreCoolingCell, "Molten Core Cooling Cell");
+		LanguageRegistry.addName(moltenCorePlate, "Molten Core Plate");
 		
 		//Register The Items And Blocks In The Ore Dictionary
 		OreDictionary.registerOre("ingotHardenedtin", new ItemStack(hardenedtin));
@@ -284,9 +321,11 @@ public class MoltenCoreMain {
 		MinecraftForge.EVENT_BUS.register(new MoltenCoreEventHandler());
 		GameRegistry.registerFuelHandler(new MoltenCoreFuelHandler());
 		
-		
+		ActionManager.registerTriggerProvider(new TriggerProviderMCM());
+		triggerItemDamaged.setID(950);
+		triggerItemRepaired.setID(951);
 	}
-
+	
 	@Init
 	public void init(FMLInitializationEvent event) {
 		
@@ -315,9 +354,8 @@ public class MoltenCoreMain {
 		CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe((new ItemStack(moltencoreAxe,1)),new Object[]{" MM"," SM"," S ", Character.valueOf('M'), moltencore, Character.valueOf('S'), Item.stick}));
 		CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe((new ItemStack(moltencoreHoe,1)),new Object[]{" MM"," S "," S ", Character.valueOf('M'), moltencore, Character.valueOf('S'), Item.stick}));
 		
-		CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe((new ItemStack(moltencoreMultiTool,1)),new Object[]{"MMM","MSM"," S ", Character.valueOf('M'), moltencore, Character.valueOf('S'), Item.ingotIron}));
-		CraftingManager.getInstance().getRecipeList().add(new ShapelessOreRecipe((new ItemStack(moltencoreMultiTool,1)),new Object[]{(new ItemStack(moltencoreMultiTool,-1,-1)),Item.diamond}));
-		
+		CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe((new ItemStack(ultraCobbleGen,1)),new Object[]{"ICI","CGC","ICI", Character.valueOf('I'), Item.ingotIron, Character.valueOf('C'), Block.cobblestone, Character.valueOf('G'), Item.ingotGold}));
+		CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe((new ItemStack(moltenCoreRepairer,1)),new Object[]{"MDM","DGD","MDM", Character.valueOf('M'), moltencore, Character.valueOf('D'), Item.diamond, Character.valueOf('G'),BuildCraftCore.diamondGearItem}));
 		//Register Enchanted Version Of Pickaxe
 		ItemStack enchantedPickaxe = new ItemStack(moltencorePickaxe);
 		enchantedPickaxe.addEnchantment(Enchantment.fortune, 10);
@@ -332,6 +370,9 @@ public class MoltenCoreMain {
 		//Register Compatibility Recipes
 		if(ic2){
 			OreDictionary.registerOre(OreDictionary.getOreID("lava"), Items.getItem("lavaCell"));
+			//CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe((new ItemStack(moltenCoreCoolingCell,1)),new Object[]{"PCP","CIC","PCP",Character.valueOf('P'),moltenCorePlate,Character.valueOf('C'),Items.getItem(name)}));
+		}else{
+			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe((new ItemStack(moltenCorePlate,1)),new Object[]{"PPP","P P","PPP",Character.valueOf('P'), moltencore}));
 		}
 		if(forestry){
 			OreDictionary.registerOre(OreDictionary.getOreID("lava"), ItemInterface.getItem("canLava"));
@@ -341,6 +382,8 @@ public class MoltenCoreMain {
 			
 		}
 		GameRegistry.registerWorldGenerator(new WorldGeneratorMoltenCore());
+		
+		
 		
 		
 		
@@ -356,6 +399,7 @@ public class MoltenCoreMain {
 			Ic2Recipes.addMatterAmplifier(new ItemStack(sodiumNitrate), 100000);
 			Ic2Recipes.addMaceratorRecipe((new ItemStack(burnedSugarySodiumNitrateBlock,1)), recipeResin);
 			Ic2Recipes.addCompressorRecipe((new ItemStack(Item.rottenFlesh,8)), (new ItemStack(Item.beefCooked,1)));
+			Ic2Recipes.addCompressorRecipe((new ItemStack(moltencore,8)), (new ItemStack(moltenCorePlate,1)));
 		}
 		if(forestry){
 			RecipeManagers.fermenterManager.addRecipe((new ItemStack(sodiumNitrate)),500,10.0f,(new LiquidStack(ItemInterface.getItem("liquidBiomass").itemID,1)),(new LiquidStack(Block.waterStill,1)));

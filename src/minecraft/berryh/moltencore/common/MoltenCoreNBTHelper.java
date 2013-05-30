@@ -11,6 +11,18 @@ public class MoltenCoreNBTHelper {
             itemStack.setTagCompound(new NBTTagCompound());
         }
     }
+    
+    public static NBTTagCompound getOrCreateNbtData(ItemStack itemStack) {
+        NBTTagCompound ret = itemStack.getTagCompound();
+
+        if (ret == null) {
+          ret = new NBTTagCompound();
+
+          itemStack.setTagCompound(ret);
+        }
+
+        return ret;
+      }
 
     public static boolean hasTag(ItemStack itemStack, String keyName) {
 

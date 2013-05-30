@@ -24,7 +24,7 @@ public class MoltenCoreEventHandler {
 		}
 	}
 
-	@ForgeSubscribe
+	/*
 	public void falling(LivingFallEvent event) {
 		if (event.entityLiving instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer) event.entityLiving;
@@ -43,7 +43,8 @@ public class MoltenCoreEventHandler {
 			}
 		}
 	}
-
+	*/
+	
 	@ForgeSubscribe
 	public void hurt(LivingHurtEvent event) {
 		if (event.entity instanceof EntityPlayer) {

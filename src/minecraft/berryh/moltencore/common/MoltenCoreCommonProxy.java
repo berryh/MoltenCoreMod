@@ -7,6 +7,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 public class MoltenCoreCommonProxy {
 	public static String BLOCK = "/berryh/moltencore/client/gfx/terrain.png";
 	public static String ITEM = "/berryh/moltencore/client/gfx/items.png";
+	public static String GUIREPAIRER = "/berryh/moltencore/client/gfx/guirepairer.png";
 	
 	public void registerRenderInformation(){
 		

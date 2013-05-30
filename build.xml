@@ -33,7 +33,7 @@
 		
 		<delete dir="${jar}" failonerror="false"/>
 		<mkdir dir="${jar}"/>
-		<jar destfile="${jar}/MoltenCoreMod.jar" basedir="${classes}"/>
+		<jar destfile="${jar}/Molten Core Mod.jar" basedir="${classes}"/>
 	
 	
 	
